@@ -112,6 +112,7 @@ export async function deleteInvoice(id: string) {
   revalidatePath('/dashboard/invoices');
 }
 
+
 export async function authenticate(
   prevState: string | undefined,
   formData: FormData,
@@ -119,14 +120,18 @@ export async function authenticate(
   try {
     await signIn('credentials', formData);
   } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
+    // Use a type assertion to tell TS that this error has a `type` field
+    const authError = error as AuthError & { type?: string };
+
+    if (authError instanceof AuthError) {
+      switch (authError.type) {
         case 'CredentialsSignin':
           return 'Invalid credentials.';
         default:
           return 'Something went wrong.';
       }
     }
+
     throw error;
   }
 }
